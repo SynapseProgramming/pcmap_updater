@@ -22,7 +22,7 @@ include_directories(
   "${PROJECT_SOURCE_DIR}/include"
 )
 
-add_executable(pcmap src/pcmap.cpp src/pcl_utils.cpp)
+add_executable(pcmap src/pcmap.cpp src/pcl_utils.cpp src/probabilistic_map.cpp)
 target_link_libraries(pcmap ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 install(

@@ -4,21 +4,27 @@
 #include <ros/ros.h>
 
 #include <pcmap_updater/pcl_utils.hpp>
+#include <pcmap_updater/probabilistic_map.hpp>
 
 using namespace Bonxai;
+using Vector3D = Eigen::Vector3d;
 
 class PCMAP {
  private:
-  std::vector<Point3D> map_points;
+  std::vector<Eigen::Vector3d> map_points;
+  ProbabilisticMap probMap;
 
  public:
-  PCMAP() {
+  PCMAP() : probMap(0.1) {
     ReadPointsFromPCD("/home/ro/Documents/pcd_files/office_val_183.pcd",
                       map_points);
-    if (map_points.size() >= 1) {
-      Point3D first = map_points[0];
-      std::cout << first.x << " " << first.y << " " << first.z << "\n";
+
+    // insert points into prob map
+    for (Vector3D iter : map_points) {
+      // Vector3D convpt = ConvertPoint(iter);
+      probMap.addInitPoint(iter);
     }
+    // load points back into a point cloud
   }
 };
 
