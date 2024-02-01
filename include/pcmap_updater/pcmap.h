@@ -27,7 +27,7 @@ class PCMAP {
 
  public:
   PCMAP() : nh_("~"), probMap(0.1), ready(false) {
-    ReadPointsFromPCD("/home/ro/Documents/pcd_files/office_val_183.pcd",
+    ReadPointsFromPCD("/home/ro/Documents/pcd_files/decathlon.pcd",
                       map_points);
 
     std::cout << "map points size: " << map_points.size() << "\n";
@@ -35,7 +35,6 @@ class PCMAP {
 
     // insert points into prob map
     for (Vector3D iter : map_points) {
-      // Vector3D convpt = ConvertPoint(iter);
       probMap.addInitPoint(iter);
     }
     // load points back into a point cloud
@@ -45,9 +44,6 @@ class PCMAP {
 
     for (CoordT pts : points) {
       pcl::PointXYZ pclpt(pts.x, pts.y, pts.z);
-      // pclpt._x = pts.x;
-      // pclpt._y = pts.y;
-      // pclpt._z = pts.z;
       pc.push_back(pclpt);
     }
     pcl::toROSMsg(pc, output_msg);
