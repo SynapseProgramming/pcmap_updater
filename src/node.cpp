@@ -4,8 +4,13 @@
 int main(int argc, char **argv) {
   ros::init(argc, argv, "pcmap");
   PCMAP map;
+  ros::Rate loopRate(2);
+  while (ros::ok()) {
     map.publish_new();
-    ros::spin();
+    loopRate.sleep();
+    ros::spinOnce();
+  }
+  // ros::spin();
 
   return 0;
 }
