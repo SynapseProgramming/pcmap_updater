@@ -73,7 +73,7 @@ class PCMAP {
     std::cout << "size: " << points.size() << "\n";
 
     for (CoordT pts : points) {
-      pcl::PointXYZ pclpt(pts.x, pts.y, pts.z);
+      pcl::PointXYZ pclpt(pts.x / 10.0, pts.y / 10.0, pts.z / 10.0);
       pc.push_back(pclpt);
     }
     pcl::toROSMsg(pc, output_msg);
