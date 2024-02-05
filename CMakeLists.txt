@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf2_msgs
   geometry_msgs
   sensor_msgs
+  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -23,7 +24,16 @@ find_package(catkin REQUIRED COMPONENTS
 
 find_package(PCL REQUIRED COMPONENTS common io)
 
+
+add_service_files(
+  FILES
+  Save.srv
+)
+
+generate_messages(DEPENDENCIES std_msgs)
+
 catkin_package()
+
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
@@ -32,6 +42,9 @@ include_directories(
 
 add_executable(pcmap src/pcmap.cpp src/node.cpp src/pcl_utils.cpp src/probabilistic_map.cpp)
 target_link_libraries(pcmap ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+
+
+
 
 install(
   TARGETS

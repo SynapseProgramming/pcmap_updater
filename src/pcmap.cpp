@@ -41,3 +41,8 @@ bool PCMAP::loadPcd(std::string filepath) {
   } else
     return false;
 }
+
+bool PCMAP::save_map(pcmap_updater::Save::Request& request,
+                     pcmap_updater::Save::Response& response) {
+  std::cout << "I heard " << request.Save << "\n";
+}

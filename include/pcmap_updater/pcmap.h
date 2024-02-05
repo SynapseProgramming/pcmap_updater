@@ -7,6 +7,7 @@
 #include <pcl/point_types.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl_ros/transforms.h>
+#include <pcmap_updater/Save.h>
 #include <pcmap_updater/tf2_sensor_msgs.h>
 #include <ros/ros.h>
 #include <tf2/transform_datatypes.h>
@@ -23,9 +24,11 @@ class PCMAP {
  private:
   std::vector<Eigen::Vector3d> map_points;
   ProbabilisticMap probMap;
+
   ros::NodeHandle nh_;
   ros::Publisher pc_pub_;
   ros::Subscriber pc_sub_;
+  ros::ServiceServer save_server_;
 
   pcl::PointCloud<pcl::PointXYZ> pc;
 
@@ -35,16 +38,20 @@ class PCMAP {
 
   bool ready;
 
-  void scanCB(const sensor_msgs::PointCloud2ConstPtr& inp);
+  void scanCB(const sensor_msgs::PointCloud2ConstPtr &inp);
 
  public:
   PCMAP() : nh_("~"), probMap(0.1), ready(false), tfListener(tfBuffer) {
     pc_pub_ = nh_.advertise<sensor_msgs::PointCloud2>("voxeled", 10, true);
     pc_sub_ = nh_.subscribe("/rslidar_points", 1, &PCMAP::scanCB, this);
+    save_server_ = nh_.advertiseService("save_pc_map", &PCMAP::save_map, this);
 
     ready = true;
     loadPcd("/home/ro/Documents/pcd_files/decathlon.pcd");
   }
+
+  bool save_map(pcmap_updater::Save::Request &request,
+                pcmap_updater::Save::Response &response);
 
   bool loadPcd(std::string filepath);
 
