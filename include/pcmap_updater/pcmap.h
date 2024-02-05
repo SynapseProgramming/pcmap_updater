@@ -45,9 +45,9 @@ class PCMAP {
     pc_pub_ = nh_.advertise<sensor_msgs::PointCloud2>("voxeled", 10, true);
     pc_sub_ = nh_.subscribe("/rslidar_points", 1, &PCMAP::scanCB, this);
     save_server_ = nh_.advertiseService("save_pc_map", &PCMAP::save_map, this);
-
+    loadPcd("/home/ro/Documents/test_save/test.pcd");
     ready = true;
-    loadPcd("/home/ro/Documents/pcd_files/decathlon.pcd");
+    // loadPcd("/home/ro/Documents/pcd_files/decathlon.pcd");
   }
 
   bool save_map(pcmap_updater::Save::Request &request,
@@ -55,24 +55,7 @@ class PCMAP {
 
   bool loadPcd(std::string filepath);
 
-  void publish_new() {
-    if (ready == false) return;
-
-    // load points back into a point cloud
-    sensor_msgs::PointCloud2 output_msg;
-
-    std::vector<CoordT> points;
-    probMap.getOccupiedVoxels(points);
-    std::cout << "size: " << points.size() << "\n";
-
-    for (CoordT pts : points) {
-      pcl::PointXYZ pclpt(pts.x / 10.0, pts.y / 10.0, pts.z / 10.0);
-      pc.push_back(pclpt);
-    }
-    pcl::toROSMsg(pc, output_msg);
-    output_msg.header.frame_id = "map";
-    pc_pub_.publish(output_msg);
-  }
+  void publish_new();
 };
 
 #endif

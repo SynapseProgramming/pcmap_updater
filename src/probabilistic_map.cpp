@@ -43,7 +43,7 @@ void ProbabilisticMap::addInitPoint(const Vector3D& point) {
   CellT* cell = _accessor.value(coord, true);
 
   cell->probability_log = _options.clamp_max_log;
-  cell->update_id = _update_count;
+  cell->update_id = 0;
 }
 
 void ProbabilisticMap::addMissPoint(const Vector3D& point) {
