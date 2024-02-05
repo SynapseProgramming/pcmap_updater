@@ -28,3 +28,16 @@ void PCMAP::scanCB(const sensor_msgs::PointCloud2ConstPtr& inp) {
     return;
   }
 }
+
+bool PCMAP::loadPcd(std::string filepath) {
+  bool status = ReadPointsFromPCD(filepath, map_points);
+
+  if (status) {
+    // insert points into prob map
+    for (Vector3D iter : map_points) {
+      probMap.addInitPoint(iter);
+    }
+    return true;
+  } else
+    return false;
+}

@@ -39,29 +39,15 @@ class PCMAP {
 
  public:
   PCMAP() : nh_("~"), probMap(0.1), ready(false), tfListener(tfBuffer) {
-    // ReadPointsFromPCD("/home/ro/Documents/pcd_files/decathlon.pcd",
-    // map_points);
-
-    std::cout << "map points size: " << map_points.size() << "\n";
     pc_pub_ = nh_.advertise<sensor_msgs::PointCloud2>("voxeled", 10, true);
     pc_sub_ = nh_.subscribe("/rslidar_points", 1, &PCMAP::scanCB, this);
-    // insert points into prob map
-    // for (Vector3D iter : map_points) {
-    //   probMap.addInitPoint(iter);
-    // }
-    // load points back into a point cloud
-    // std::vector<CoordT> points;
-    // probMap.getOccupiedVoxels(points);
-    // std::cout << "size: " << points.size() << "\n";
 
-    // for (CoordT pts : points) {
-    //   pcl::PointXYZ pclpt(pts.x, pts.y, pts.z);
-    //   pc.push_back(pclpt);
-    // }
-    // pcl::toROSMsg(pc, output_msg);
-    // output_msg.header.frame_id = "map";
     ready = true;
+    loadPcd("/home/ro/Documents/pcd_files/decathlon.pcd");
   }
+
+  bool loadPcd(std::string filepath);
+
   void publish_new() {
     if (ready == false) return;
 
