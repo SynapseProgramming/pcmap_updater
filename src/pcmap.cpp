@@ -7,20 +7,16 @@ void PCMAP::scanCB(const sensor_msgs::PointCloud2ConstPtr& inp) {
   try {
     geometry_msgs::TransformStamped laserTransform =
         tfBuffer.lookupTransform("map", "rslidar", ros::Time(0));
-    geometry_msgs::TransformStamped laserPose =
-        tfBuffer.lookupTransform("rslidar", "map", ros::Time(0));
     tf2::doTransform(*inp, ros_pcl, laserTransform);
     pcl::fromROSMsg(ros_pcl, pcl_pc);
     std::vector<pcl::PointXYZ> data;
     for (const auto& point : pcl_pc.points) {
       data.push_back(point);
     }
-    // std::cout << pcl_pc.points[0].x << "\n";
     double x = laserTransform.transform.translation.x;
     double y = laserTransform.transform.translation.y;
     double z = laserTransform.transform.translation.z;
     pcl::PointXYZ laser_origin(x, y, z);
-    // std::cout << x << " " << y << " " << z << "\n";
     probMap.insertPointCloud(data, laser_origin, 100.0);
 
   } catch (tf2::TransformException& ex) {
@@ -45,4 +41,7 @@ bool PCMAP::loadPcd(std::string filepath) {
 bool PCMAP::save_map(pcmap_updater::Save::Request& request,
                      pcmap_updater::Save::Response& response) {
   std::cout << "I heard " << request.Save << "\n";
+  response.Status = true;
+
+  return true;
 }
