@@ -17,13 +17,10 @@
 #include <pcmap_updater/pcl_utils.hpp>
 #include <pcmap_updater/probabilistic_map.hpp>
 
-using namespace Bonxai;
-using Vector3D = Eigen::Vector3d;
-
 class PCMAP {
  private:
   std::vector<Eigen::Vector3d> map_points;
-  ProbabilisticMap probMap;
+  Bonxai::ProbabilisticMap probMap;
 
   ros::NodeHandle nh_;
   ros::Publisher pc_pub_;

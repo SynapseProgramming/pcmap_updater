@@ -26,10 +26,10 @@ void PCMAP::scanCB(const sensor_msgs::PointCloud2ConstPtr& inp) {
 }
 
 bool PCMAP::loadPcd(std::string filepath) {
-  bool status = ReadPointsFromPCD(filepath, map_points);
+  bool status = Bonxai::ReadPointsFromPCD(filepath, map_points);
 
   if (status) {
-    for (Vector3D iter : map_points) {
+    for (Eigen::Vector3d iter : map_points) {
       probMap.addInitPoint(iter);
     }
     return true;
@@ -39,10 +39,11 @@ bool PCMAP::loadPcd(std::string filepath) {
 
 bool PCMAP::save_map(pcmap_updater::Save::Request& request,
                      pcmap_updater::Save::Response& response) {
-  std::vector<Point3D> converted;
+  std::vector<Bonxai::Point3D> converted;
   probMap.getOccupiedVoxels(converted);
 
-  WritePointsFromPCD("/home/ro/Documents/test_save/test.pcd", converted);
+  Bonxai::WritePointsFromPCD("/home/ro/Documents/test_save/test.pcd",
+                             converted);
 
   response.Status = true;
 
@@ -56,10 +57,10 @@ void PCMAP::publish_map_pc() {
   sensor_msgs::PointCloud2 output_msg;
   pcl::PointCloud<pcl::PointXYZ> pc;
 
-  std::vector<Point3D> points;
+  std::vector<Bonxai::Point3D> points;
   probMap.getOccupiedVoxels(points);
 
-  for (Point3D pts : points) {
+  for (Bonxai::Point3D pts : points) {
     pcl::PointXYZ pclpt(pts.x, pts.y, pts.z);
     pc.push_back(pclpt);
   }
