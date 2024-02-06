@@ -9,6 +9,13 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   pcl_conversions
   pcl_ros
+  tf
+  tf2
+  tf2_ros
+  tf2_msgs
+  geometry_msgs
+  sensor_msgs
+  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -17,15 +24,27 @@ find_package(catkin REQUIRED COMPONENTS
 
 find_package(PCL REQUIRED COMPONENTS common io)
 
+
+add_service_files(
+  FILES
+  Save.srv
+)
+
+generate_messages(DEPENDENCIES std_msgs)
+
 catkin_package()
+
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
   "${PROJECT_SOURCE_DIR}/include"
 )
 
-add_executable(pcmap src/pcmap.cpp src/pcl_utils.cpp src/probabilistic_map.cpp)
+add_executable(pcmap src/pcmap.cpp src/node.cpp src/pcl_utils.cpp src/probabilistic_map.cpp)
 target_link_libraries(pcmap ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+
+
+
 
 install(
   TARGETS

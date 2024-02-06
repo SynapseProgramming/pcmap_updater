@@ -30,6 +30,8 @@ class ProbabilisticMap {
  public:
   using Vector3D = Eigen::Vector3d;
 
+  double getVoxelProbability(const Point3D& coord);
+
   /// Compute the logds, but return the result as an integer,
   /// The real number is represented as a fixed precision
   /// integer (6 decimals after the comma)
@@ -60,7 +62,7 @@ class ProbabilisticMap {
     int32_t clamp_min_log = logods(0.12f);
     int32_t clamp_max_log = logods(0.97f);
 
-    int32_t occupancy_threshold_log = logods(0.5);
+    int32_t occupancy_threshold_log = logods(0.5f);
   };
 
   static const int32_t UnknownProbability;
@@ -96,7 +98,6 @@ class ProbabilisticMap {
   // We expose it here to add more control to the user.
   // Once finished adding points, you must call updateFreeCells()
   void addHitPoint(const Vector3D& point);
-
 
   // Add marked points
   void addInitPoint(const Vector3D& point);

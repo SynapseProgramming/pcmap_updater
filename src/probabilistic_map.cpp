@@ -43,7 +43,7 @@ void ProbabilisticMap::addInitPoint(const Vector3D& point) {
   CellT* cell = _accessor.value(coord, true);
 
   cell->probability_log = _options.clamp_max_log;
-  cell->update_id = _update_count;
+  cell->update_id = 0;
 }
 
 void ProbabilisticMap::addMissPoint(const Vector3D& point) {
@@ -112,8 +112,6 @@ void Bonxai::ProbabilisticMap::updateFreeCells(const Vector3D& origin) {
   }
 }
 
-// TODO: this function could be used to get the coordinates of the
-// new pointcloud
 void ProbabilisticMap::getOccupiedVoxels(std::vector<CoordT>& coords) {
   coords.clear();
   auto visitor = [&](CellT& cell, const CoordT& coord) {
@@ -132,6 +130,14 @@ void ProbabilisticMap::getFreeVoxels(std::vector<CoordT>& coords) {
     }
   };
   _grid.forEachCell(visitor);
+}
+
+double ProbabilisticMap::getVoxelProbability(const Point3D& pos) {
+  CoordT coord = _grid.posToCoord(pos);
+  if (auto* cell = _accessor.value(coord, false)) {
+    return prob(cell->probability_log);
+  }
+  return -1.0;
 }
 
 }  // namespace Bonxai
