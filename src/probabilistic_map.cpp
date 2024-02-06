@@ -1,7 +1,6 @@
 #include "pcmap_updater/probabilistic_map.hpp"
 
 #include <eigen3/Eigen/Geometry>
-#include <iostream>
 #include <unordered_set>
 
 namespace Bonxai {
@@ -86,27 +85,17 @@ void Bonxai::ProbabilisticMap::updateFreeCells(const Vector3D& origin) {
 
   // same as addMissPoint, but using lambda will force inlining
   auto clearPoint = [this, &accessor](const CoordT& coord) {
-    this->raytracedVoxels.insert(coord);
     CellT* cell = accessor.value(coord, true);
     if (cell->update_id != _update_count) {
       cell->probability_log =
           std::max(cell->probability_log + _options.prob_miss_log,
                    _options.clamp_min_log);
-      // std::cout << prob(cell->probability_log) << "\n";
-      // std::cout << cell->update_id << "\n";
       cell->update_id = _update_count;
     }
     return true;
   };
-  // const Point3D hehe = ConvertPoint<Point3D>(origin);
-  // const auto kek = _grid.posToCoord(hehe);
-  // std::cout << "hehe: x: " << kek.x << " y: " << kek.y << " z: " << kek.z
-  //           << "\n";
 
   const auto coord_origin = _grid.posToCoord(origin);
-  // std::cout << "original: x: " << coord_origin.x << " y: " << coord_origin.y
-  //           << " z: " << coord_origin.z << "\n";
-  std::cout << _hit_coords.size() << "\n";
 
   for (const auto& coord_end : _hit_coords) {
     RayIterator(coord_origin, coord_end, clearPoint);
@@ -141,14 +130,6 @@ void ProbabilisticMap::getFreeVoxels(std::vector<CoordT>& coords) {
     }
   };
   _grid.forEachCell(visitor);
-}
-
-void ProbabilisticMap::getRaytracedVoxels(std::vector<Point3D>& coords) {
-  coords.clear();
-  for (CoordT it : raytracedVoxels) {
-    coords.push_back(_grid.coordToPos(it));
-  }
-  
 }
 
 double ProbabilisticMap::getVoxelProbability(const Point3D& pos) {

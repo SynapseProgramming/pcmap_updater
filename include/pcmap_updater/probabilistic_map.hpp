@@ -1,7 +1,6 @@
 #pragma once
 
 #include <eigen3/Eigen/Geometry>
-#include <iostream>
 #include <unordered_set>
 
 #include "pcmap_updater/bonxai.hpp"
@@ -30,10 +29,6 @@ inline void ComputeRay(const CoordT& key_origin, const CoordT& key_end,
 class ProbabilisticMap {
  public:
   using Vector3D = Eigen::Vector3d;
-
-  std::unordered_set<CoordT> raytracedVoxels;
-
-  void getRaytracedVoxels(std::vector<Point3D>& coords);
 
   double getVoxelProbability(const Point3D& coord);
 
@@ -132,9 +127,9 @@ class ProbabilisticMap {
       points.emplace_back(p.x, p.y, p.z);
     }
   }
-  VoxelGrid<CellT> _grid;
 
  private:
+  VoxelGrid<CellT> _grid;
   Options _options;
   uint8_t _update_count = 1;
 
@@ -212,7 +207,6 @@ inline void RayIterator(const CoordT& key_origin, const CoordT& key_end,
       error.z -= max;
     }
     if (!func(coord)) {
-      std::cout << "killed\n";
       return;
     }
   }
