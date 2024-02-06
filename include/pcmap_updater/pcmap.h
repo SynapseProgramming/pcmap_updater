@@ -30,6 +30,8 @@ class PCMAP {
   ros::Subscriber pc_sub_;
   ros::ServiceServer save_server_;
 
+  ros::Publisher raytrace_pub_;
+
   pcl::PointCloud<pcl::PointXYZ> pc;
 
   // transforms
@@ -43,6 +45,7 @@ class PCMAP {
  public:
   PCMAP() : nh_("~"), probMap(0.1), ready(false), tfListener(tfBuffer) {
     pc_pub_ = nh_.advertise<sensor_msgs::PointCloud2>("voxeled", 10, true);
+    raytrace_pub_ = nh_.advertise<sensor_msgs::PointCloud2>("raytraced", 10, true);
     pc_sub_ = nh_.subscribe("/rslidar_points", 1, &PCMAP::scanCB, this);
     save_server_ = nh_.advertiseService("save_pc_map", &PCMAP::save_map, this);
     loadPcd("/home/ro/Documents/test_save/test.pcd");
@@ -56,6 +59,8 @@ class PCMAP {
   bool loadPcd(std::string filepath);
 
   void publish_new();
+
+  void publish_raytraced();
 };
 
 #endif

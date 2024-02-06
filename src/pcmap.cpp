@@ -17,6 +17,8 @@ void PCMAP::scanCB(const sensor_msgs::PointCloud2ConstPtr& inp) {
     double y = laserTransform.transform.translation.y;
     double z = laserTransform.transform.translation.z;
     pcl::PointXYZ laser_origin(x, y, z);
+    // publish out the laser origin
+    // std::cout << "x: " << x << " y: " << y << " z: " << z << "\n";
     probMap.insertPointCloud(data, laser_origin, 100.0);
 
   } catch (tf2::TransformException& ex) {
@@ -45,7 +47,6 @@ bool PCMAP::save_map(pcmap_updater::Save::Request& request,
   std::vector<Point3D> converted;
   probMap.getOccupiedVoxels(converted);
 
-
   WritePointsFromPCD("/home/ro/Documents/test_save/test.pcd", converted);
 
   response.Status = true;
@@ -70,4 +71,19 @@ void PCMAP::publish_new() {
   pcl::toROSMsg(pc, output_msg);
   output_msg.header.frame_id = "map";
   pc_pub_.publish(output_msg);
+}
+
+void PCMAP::publish_raytraced() {
+  if (ready == false) return;
+  sensor_msgs::PointCloud2 output_msg;
+  pcl::PointCloud<pcl::PointXYZ> og_pcl;
+  std::vector<Point3D> points;
+  probMap.getRaytracedVoxels(points);
+  for (Point3D pts : points) {
+    pcl::PointXYZ pclpt(pts.x, pts.y, pts.z);
+    og_pcl.push_back(pclpt);
+  }
+  pcl::toROSMsg(og_pcl, output_msg);
+  output_msg.header.frame_id = "map";
+  raytrace_pub_.publish(output_msg);
 }

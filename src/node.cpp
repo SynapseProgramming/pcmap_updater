@@ -7,6 +7,7 @@ int main(int argc, char **argv) {
   ros::Rate loopRate(2);
   while (ros::ok()) {
     map.publish_new();
+    map.publish_raytraced();
     loopRate.sleep();
     ros::spinOnce();
   }
