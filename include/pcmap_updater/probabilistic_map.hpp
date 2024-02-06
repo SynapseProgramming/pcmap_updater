@@ -1,6 +1,7 @@
 #pragma once
 
 #include <eigen3/Eigen/Geometry>
+#include <iostream>
 #include <unordered_set>
 
 #include "pcmap_updater/bonxai.hpp"
@@ -29,6 +30,12 @@ inline void ComputeRay(const CoordT& key_origin, const CoordT& key_end,
 class ProbabilisticMap {
  public:
   using Vector3D = Eigen::Vector3d;
+
+  std::unordered_set<CoordT> raytracedVoxels;
+
+  void getRaytracedVoxels(std::vector<Point3D>& coords);
+
+  double getVoxelProbability(const Point3D& coord);
 
   /// Compute the logds, but return the result as an integer,
   /// The real number is represented as a fixed precision
@@ -60,7 +67,7 @@ class ProbabilisticMap {
     int32_t clamp_min_log = logods(0.12f);
     int32_t clamp_max_log = logods(0.97f);
 
-    int32_t occupancy_threshold_log = logods(0.5);
+    int32_t occupancy_threshold_log = logods(0.5f);
   };
 
   static const int32_t UnknownProbability;
@@ -97,7 +104,6 @@ class ProbabilisticMap {
   // Once finished adding points, you must call updateFreeCells()
   void addHitPoint(const Vector3D& point);
 
-
   // Add marked points
   void addInitPoint(const Vector3D& point);
 
@@ -126,9 +132,9 @@ class ProbabilisticMap {
       points.emplace_back(p.x, p.y, p.z);
     }
   }
+  VoxelGrid<CellT> _grid;
 
  private:
-  VoxelGrid<CellT> _grid;
   Options _options;
   uint8_t _update_count = 1;
 
@@ -206,6 +212,7 @@ inline void RayIterator(const CoordT& key_origin, const CoordT& key_end,
       error.z -= max;
     }
     if (!func(coord)) {
+      std::cout << "killed\n";
       return;
     }
   }

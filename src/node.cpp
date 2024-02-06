@@ -6,7 +6,9 @@ int main(int argc, char **argv) {
   PCMAP map;
   ros::Rate loopRate(2);
   while (ros::ok()) {
-    map.publish_new();
+    // map.publish_new();
+    map.publish_raytraced();
+    map.intersect();
     loopRate.sleep();
     ros::spinOnce();
   }

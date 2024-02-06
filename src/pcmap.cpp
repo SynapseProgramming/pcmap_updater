@@ -17,6 +17,8 @@ void PCMAP::scanCB(const sensor_msgs::PointCloud2ConstPtr& inp) {
     double y = laserTransform.transform.translation.y;
     double z = laserTransform.transform.translation.z;
     pcl::PointXYZ laser_origin(x, y, z);
+    // publish out the laser origin
+    // std::cout << "x: " << x << " y: " << y << " z: " << z << "\n";
     probMap.insertPointCloud(data, laser_origin, 100.0);
 
   } catch (tf2::TransformException& ex) {
@@ -45,7 +47,6 @@ bool PCMAP::save_map(pcmap_updater::Save::Request& request,
   std::vector<Point3D> converted;
   probMap.getOccupiedVoxels(converted);
 
-
   WritePointsFromPCD("/home/ro/Documents/test_save/test.pcd", converted);
 
   response.Status = true;
@@ -70,4 +71,70 @@ void PCMAP::publish_new() {
   pcl::toROSMsg(pc, output_msg);
   output_msg.header.frame_id = "map";
   pc_pub_.publish(output_msg);
+}
+
+void PCMAP::publish_raytraced() {
+  if (ready == false) return;
+  sensor_msgs::PointCloud2 output_msg;
+  pcl::PointCloud<pcl::PointXYZ> og_pcl;
+  std::vector<Point3D> points;
+  probMap.getRaytracedVoxels(points);
+  for (Point3D pts : points) {
+    pcl::PointXYZ pclpt(pts.x, pts.y, pts.z);
+    og_pcl.push_back(pclpt);
+  }
+  pcl::toROSMsg(og_pcl, output_msg);
+  output_msg.header.frame_id = "map";
+  raytrace_pub_.publish(output_msg);
+}
+
+void PCMAP::intersect() {
+  std::unordered_set<CoordT> cnt;
+  std::vector<Point3D> occupied_points;
+  std::vector<Point3D> raytraced_points;
+  std::vector<Point3D> intersected;
+  probMap.getOccupiedVoxels(occupied_points);
+  probMap.getRaytracedVoxels(raytraced_points);
+
+  for (auto it : raytraced_points) {
+    cnt.insert(probMap._grid.posToCoord(it));
+  }
+  for (auto it : occupied_points) {
+    if (cnt.count(probMap._grid.posToCoord(it))) {
+      intersected.push_back(it);
+    }
+  }
+
+  if (ready == false) return;
+  sensor_msgs::PointCloud2 output_msg;
+  pcl::PointCloud<pcl::PointXYZ> og_pcl;
+
+  sensor_msgs::PointCloud2 global_output_msg;
+  pcl::PointCloud<pcl::PointXYZ> global_og_pcl;
+
+  for (Point3D pts : intersected) {
+    pcl::PointXYZ pclpt(pts.x, pts.y, pts.z);
+    og_pcl.push_back(pclpt);
+  }
+  pcl::toROSMsg(og_pcl, output_msg);
+  output_msg.header.frame_id = "map";
+  inter_pub_.publish(output_msg);
+
+  // std::cout << "cnt size: " << cnt.size() << "\n";
+  // std::cout << "intersected size: " << intersected.size() << "\n";
+  for (int i = 0; i < intersected.size(); i++) {
+    Point3D curr = intersected[i];
+    std::cout << i << " prob value: " << probMap.getVoxelProbability(curr)
+              << "\n";
+  }
+
+  for (Point3D pts : occupied_points) {
+    pcl::PointXYZ pclpt(pts.x, pts.y, pts.z);
+    global_og_pcl.push_back(pclpt);
+  }
+  pcl::toROSMsg(global_og_pcl, global_output_msg);
+  global_output_msg.header.frame_id = "map";
+  pc_pub_.publish(global_output_msg);
+
+  probMap.raytracedVoxels.clear();
 }
