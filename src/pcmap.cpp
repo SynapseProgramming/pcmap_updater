@@ -87,3 +87,54 @@ void PCMAP::publish_raytraced() {
   output_msg.header.frame_id = "map";
   raytrace_pub_.publish(output_msg);
 }
+
+void PCMAP::intersect() {
+  std::unordered_set<CoordT> cnt;
+  std::vector<Point3D> occupied_points;
+  std::vector<Point3D> raytraced_points;
+  std::vector<Point3D> intersected;
+  probMap.getOccupiedVoxels(occupied_points);
+  probMap.getRaytracedVoxels(raytraced_points);
+
+  for (auto it : raytraced_points) {
+    cnt.insert(probMap._grid.posToCoord(it));
+  }
+  for (auto it : occupied_points) {
+    if (cnt.count(probMap._grid.posToCoord(it))) {
+      intersected.push_back(it);
+    }
+  }
+
+  if (ready == false) return;
+  sensor_msgs::PointCloud2 output_msg;
+  pcl::PointCloud<pcl::PointXYZ> og_pcl;
+
+  sensor_msgs::PointCloud2 global_output_msg;
+  pcl::PointCloud<pcl::PointXYZ> global_og_pcl;
+
+  for (Point3D pts : intersected) {
+    pcl::PointXYZ pclpt(pts.x, pts.y, pts.z);
+    og_pcl.push_back(pclpt);
+  }
+  pcl::toROSMsg(og_pcl, output_msg);
+  output_msg.header.frame_id = "map";
+  inter_pub_.publish(output_msg);
+
+  // std::cout << "cnt size: " << cnt.size() << "\n";
+  // std::cout << "intersected size: " << intersected.size() << "\n";
+  for (int i = 0; i < intersected.size(); i++) {
+    Point3D curr = intersected[i];
+    std::cout << i << " prob value: " << probMap.getVoxelProbability(curr)
+              << "\n";
+  }
+
+  for (Point3D pts : occupied_points) {
+    pcl::PointXYZ pclpt(pts.x, pts.y, pts.z);
+    global_og_pcl.push_back(pclpt);
+  }
+  pcl::toROSMsg(global_og_pcl, global_output_msg);
+  global_output_msg.header.frame_id = "map";
+  pc_pub_.publish(global_output_msg);
+
+  probMap.raytracedVoxels.clear();
+}

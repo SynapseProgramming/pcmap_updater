@@ -148,6 +148,15 @@ void ProbabilisticMap::getRaytracedVoxels(std::vector<Point3D>& coords) {
   for (CoordT it : raytracedVoxels) {
     coords.push_back(_grid.coordToPos(it));
   }
+  
+}
+
+double ProbabilisticMap::getVoxelProbability(const Point3D& pos) {
+  CoordT coord = _grid.posToCoord(pos);
+  if (auto* cell = _accessor.value(coord, false)) {
+    return prob(cell->probability_log);
+  }
+  return -1.0;
 }
 
 }  // namespace Bonxai

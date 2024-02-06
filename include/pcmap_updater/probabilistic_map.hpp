@@ -35,6 +35,8 @@ class ProbabilisticMap {
 
   void getRaytracedVoxels(std::vector<Point3D>& coords);
 
+  double getVoxelProbability(const Point3D& coord);
+
   /// Compute the logds, but return the result as an integer,
   /// The real number is represented as a fixed precision
   /// integer (6 decimals after the comma)
@@ -130,9 +132,9 @@ class ProbabilisticMap {
       points.emplace_back(p.x, p.y, p.z);
     }
   }
+  VoxelGrid<CellT> _grid;
 
  private:
-  VoxelGrid<CellT> _grid;
   Options _options;
   uint8_t _update_count = 1;
 
