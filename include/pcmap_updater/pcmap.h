@@ -2,6 +2,7 @@
 #define PCMAP_H
 
 #include <geometry_msgs/TransformStamped.h>
+#include <pcl/filters/filter.h>
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
@@ -40,9 +41,9 @@ class PCMAP {
     pc_pub_ = nh_.advertise<sensor_msgs::PointCloud2>("voxeled", 10, true);
     pc_sub_ = nh_.subscribe("/rslidar_points", 1, &PCMAP::scanCB, this);
     save_server_ = nh_.advertiseService("save_pc_map", &PCMAP::save_map, this);
-    loadPcd("/home/ro/Documents/test_save/test.pcd");
+    // loadPcd("/home/ro/Documents/test_save/test.pcd");
+    loadPcd("/home/ro/Documents/pcd_files/decathlon.pcd");
     ready = true;
-    // loadPcd("/home/ro/Documents/pcd_files/decathlon.pcd");
   }
 
   bool save_map(pcmap_updater::Save::Request &request,
