@@ -4,6 +4,8 @@
 #include <iostream>
 
 void PCMAP::scanCB(const sensor_msgs::PointCloud2ConstPtr& inp) {
+  if (!isMoving) return;
+
   sensor_msgs::PointCloud2 ros_pcl;
   pcl::PointCloud<pcl::PointXYZ> pcl_pc;
   pcl::PointCloud<pcl::PointXYZ> filtered_pcl_pc;
@@ -32,7 +34,12 @@ void PCMAP::scanCB(const sensor_msgs::PointCloud2ConstPtr& inp) {
 }
 
 void PCMAP::odomCB(const nav_msgs::OdometryConstPtr& inp) {
-  std::cout << "odom received!\n";
+  double linearv = inp->twist.twist.linear.x;
+  double angularv = inp->twist.twist.angular.z;
+  if (std::abs(angularv) <= 0.05 || std::abs(linearv) <= 0.05)
+    isMoving = false;
+  else
+    isMoving = true;
 }
 
 bool PCMAP::loadPcd(std::string filepath) {
@@ -70,6 +77,7 @@ void PCMAP::publish_map_pc() {
   std::vector<Bonxai::Point3D> points;
   probMap.getOccupiedVoxels(points);
   std::cout << "points size: " << points.size() << "\n";
+  std::cout << "is moving: " << isMoving << "\n";
 
   for (Bonxai::Point3D pts : points) {
     pcl::PointXYZ pclpt(pts.x, pts.y, pts.z);

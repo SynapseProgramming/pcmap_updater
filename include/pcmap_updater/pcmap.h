@@ -35,6 +35,7 @@ class PCMAP {
   tf2_ros::TransformListener tfListener;
 
   bool ready;
+  bool isMoving;
 
   void scanCB(const sensor_msgs::PointCloud2ConstPtr &inp);
 
@@ -49,6 +50,7 @@ class PCMAP {
     // loadPcd("/home/ro/Documents/test_save/test.pcd");
     loadPcd("/home/ro/Documents/pcd_files/decathlon.pcd");
     ready = true;
+    isMoving = false;
   }
 
   bool save_map(pcmap_updater::Save::Request &request,
