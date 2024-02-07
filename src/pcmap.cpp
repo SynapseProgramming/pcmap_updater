@@ -31,6 +31,10 @@ void PCMAP::scanCB(const sensor_msgs::PointCloud2ConstPtr& inp) {
   }
 }
 
+void PCMAP::odomCB(const nav_msgs::OdometryConstPtr& inp) {
+  std::cout << "odom received!\n";
+}
+
 bool PCMAP::loadPcd(std::string filepath) {
   bool status = Bonxai::ReadPointsFromPCD(filepath, map_points);
 
