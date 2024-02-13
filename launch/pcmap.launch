@@ -1,0 +1,43 @@
+<launch >
+
+
+    <!-- Topic and frame parameters -->
+    <arg name="odom_topic_name" default="/odom" />
+    <arg name="scan_topic_name" default="/rslidar_points" />
+    <arg name="map_frame_name" default="map" />
+    <arg name="scan_frame_name" default="lidar_3d_straight" />
+    <arg name="pc_topic_name" default="pcmap" />
+
+    <!-- voxel size (to voxelize incoming scans) -->
+    <arg name="voxel_filter_size" default="0.2" />
+
+    <!-- maximum point distance -->
+    <arg name="max_distance" default="100.0" />
+
+    <!-- linear(m/s) and angular(rad/s) velocities used to determine if the bot has stopped  -->
+    <arg name="max_linear_velocity" default="0.02" />
+    <arg name="max_angular_velocity" default="0.02" />
+
+    <!-- pcd filepaths -->
+    <arg name="load_pcd_path" default="/home/ro/Documents/pcd_files/decathlon.pcd" />
+    <arg name="save_pcd_path" default="/home/ro/Documents/test_save/test.pcd" />
+
+
+    <node name="pc_map" pkg="pcmap_updater" type="pcmap_node" output="screen">
+
+        <param name="odom_topic_name" value="$(arg odom_topic_name)" type="string" />
+        <param name="scan_topic_name" value="$(arg scan_topic_name)" type="string" />
+        <param name="map_frame_name" value="$(arg map_frame_name)" type="string" />
+        <param name="scan_frame_name" value="$(arg scan_frame_name)" type="string" />
+        <param name="pc_topic_name" value="$(arg pc_topic_name)" type="string" />
+
+        <param name="voxel_filter_size" value="$(arg voxel_filter_size)" type="double" />
+        <param name="max_distance" value="$(arg max_distance)" type="double" />
+        <param name="max_linear_velocity" value="$(arg max_linear_velocity)" type="double" />
+        <param name="max_angular_velocity" value="$(arg max_angular_velocity)" type="double" />
+
+
+        <param name="load_pcd_path" value="$(arg load_pcd_path)" type="string" />
+        <param name="save_pcd_path" value="$(arg save_pcd_path)" type="string" />
+    </node >
+</launch >

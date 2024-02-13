@@ -41,15 +41,15 @@ include_directories(
   "${PROJECT_SOURCE_DIR}/include"
 )
 
-add_executable(pcmap src/pcmap.cpp src/node.cpp src/pcl_utils.cpp src/probabilistic_map.cpp)
-target_link_libraries(pcmap ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+add_executable(pcmap_node src/pcmap.cpp src/node.cpp src/pcl_utils.cpp src/probabilistic_map.cpp)
+target_link_libraries(pcmap_node ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 
 
 
 
 install(
   TARGETS
-  pcmap
+  pcmap_node
   RUNTIME DESTINATION
     ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
@@ -58,4 +58,11 @@ install(
 install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   PATTERN ".svn" EXCLUDE
+)
+
+
+install(
+  DIRECTORY
+    launch
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
