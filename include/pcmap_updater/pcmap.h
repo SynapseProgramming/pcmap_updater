@@ -49,6 +49,8 @@ class PCMAP {
   bool ready;
   bool isMoving;
 
+  pcl::VoxelGrid<pcl::PointXYZ> voxel_grid_filter;
+
   void scanCB(const sensor_msgs::PointCloud2ConstPtr &inp);
 
   void odomCB(const nav_msgs::OdometryConstPtr &inp);

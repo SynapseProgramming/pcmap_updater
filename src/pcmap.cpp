@@ -38,6 +38,8 @@ PCMAP::PCMAP()
   loadPcd(loadPcdPath);
   ready = true;
   isMoving = false;
+
+  voxel_grid_filter.setLeafSize(0.2, 0.2, 0.2);
 }
 
 void PCMAP::scanCB(const sensor_msgs::PointCloud2ConstPtr& inp) {
@@ -46,6 +48,8 @@ void PCMAP::scanCB(const sensor_msgs::PointCloud2ConstPtr& inp) {
   sensor_msgs::PointCloud2 ros_pcl;
   pcl::PointCloud<pcl::PointXYZ> pcl_pc;
   pcl::PointCloud<pcl::PointXYZ> filtered_pcl_pc;
+  pcl::PointCloud<pcl::PointXYZ> voxel_filtered_pcl_pc;
+
   try {
     geometry_msgs::TransformStamped laserTransform =
         tfBuffer.lookupTransform(mapFrameName, scanFrameName, ros::Time(0));
@@ -53,8 +57,12 @@ void PCMAP::scanCB(const sensor_msgs::PointCloud2ConstPtr& inp) {
     pcl::fromROSMsg(ros_pcl, pcl_pc);
     pcl::Indices indices;
     pcl::removeNaNFromPointCloud(pcl_pc, filtered_pcl_pc, indices);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr scan_ptr(
+        new pcl::PointCloud<pcl::PointXYZ>(filtered_pcl_pc));
+    voxel_grid_filter.setInputCloud(scan_ptr);
+    voxel_grid_filter.filter(voxel_filtered_pcl_pc);
     std::vector<pcl::PointXYZ> data;
-    for (const auto& point : filtered_pcl_pc.points) {
+    for (const auto& point : voxel_filtered_pcl_pc.points) {
       data.push_back(point);
     }
     double x = laserTransform.transform.translation.x;
