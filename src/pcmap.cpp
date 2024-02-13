@@ -5,7 +5,7 @@
 
 PCMAP::PCMAP()
     : nh_("~"),
-      probMap(0.1),
+      probMap(0.2),
       ready(false),
       tfListener(tfBuffer),
       mapFrameName("map"),
