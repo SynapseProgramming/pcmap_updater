@@ -1,7 +1,6 @@
 #include <pcmap_updater/pcmap.h>
 #include <ros/ros.h>
 
-#include <iostream>
 
 PCMAP::PCMAP()
     : nh_("~"),
@@ -72,7 +71,6 @@ void PCMAP::scanCB(const sensor_msgs::PointCloud2ConstPtr& inp) {
     double y = laserTransform.transform.translation.y;
     double z = laserTransform.transform.translation.z;
     pcl::PointXYZ laser_origin(x, y, z);
-    std::cout << "x: " << x << " y: " << y << " z: " << z << "\n";
     probMap.insertPointCloud(data, laser_origin, maxDistance);
 
   } catch (tf2::TransformException& ex) {
@@ -123,8 +121,6 @@ void PCMAP::publish_map_pc() {
 
   std::vector<Bonxai::Point3D> points;
   probMap.getOccupiedVoxels(points);
-  std::cout << "points size: " << points.size() << "\n";
-  std::cout << "is moving: " << isMoving << "\n";
 
   for (Bonxai::Point3D pts : points) {
     pcl::PointXYZ pclpt(pts.x, pts.y, pts.z);
