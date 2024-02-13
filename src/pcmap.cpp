@@ -11,7 +11,7 @@ void PCMAP::scanCB(const sensor_msgs::PointCloud2ConstPtr& inp) {
   pcl::PointCloud<pcl::PointXYZ> filtered_pcl_pc;
   try {
     geometry_msgs::TransformStamped laserTransform =
-        tfBuffer.lookupTransform("map", "lidar_3d_straight", ros::Time(0));
+        tfBuffer.lookupTransform(mapFrameName, scanFrameName, ros::Time(0));
     tf2::doTransform(*inp, ros_pcl, laserTransform);
     pcl::fromROSMsg(ros_pcl, pcl_pc);
     pcl::Indices indices;
@@ -25,7 +25,7 @@ void PCMAP::scanCB(const sensor_msgs::PointCloud2ConstPtr& inp) {
     double z = laserTransform.transform.translation.z;
     pcl::PointXYZ laser_origin(x, y, z);
     std::cout << "x: " << x << " y: " << y << " z: " << z << "\n";
-    probMap.insertPointCloud(data, laser_origin, 100.0);
+    probMap.insertPointCloud(data, laser_origin, maxDistance);
 
   } catch (tf2::TransformException& ex) {
     ROS_WARN("%s", ex.what());
@@ -36,10 +36,11 @@ void PCMAP::scanCB(const sensor_msgs::PointCloud2ConstPtr& inp) {
 void PCMAP::odomCB(const nav_msgs::OdometryConstPtr& inp) {
   double linearv = inp->twist.twist.linear.x;
   double angularv = inp->twist.twist.angular.z;
-  if (std::abs(angularv) <= 0.05 || std::abs(linearv) <= 0.05)
+  if (std::abs(angularv) <= maxAngularV && std::abs(linearv) <= maxLinearV) {
     isMoving = false;
-  else
+  } else {
     isMoving = true;
+  }
 }
 
 bool PCMAP::loadPcd(std::string filepath) {
@@ -58,9 +59,7 @@ bool PCMAP::save_map(pcmap_updater::Save::Request& request,
                      pcmap_updater::Save::Response& response) {
   std::vector<Bonxai::Point3D> converted;
   probMap.getOccupiedVoxels(converted);
-
-  Bonxai::WritePointsFromPCD("/home/ro/Documents/test_save/test.pcd",
-                             converted);
+  Bonxai::WritePointsFromPCD(savePcdPath, converted);
 
   response.Status = true;
 
@@ -84,6 +83,6 @@ void PCMAP::publish_map_pc() {
     pc.push_back(pclpt);
   }
   pcl::toROSMsg(pc, output_msg);
-  output_msg.header.frame_id = "map";
+  output_msg.header.frame_id = mapFrameName;
   pc_pub_.publish(output_msg);
 }
