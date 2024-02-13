@@ -2,6 +2,8 @@
 #define PCMAP_H
 
 #include <geometry_msgs/TransformStamped.h>
+#include <nav_msgs/Odometry.h>
+#include <pcl/filters/filter.h>
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
@@ -25,25 +27,37 @@ class PCMAP {
   ros::NodeHandle nh_;
   ros::Publisher pc_pub_;
   ros::Subscriber pc_sub_;
+  ros::Subscriber odom_sub_;
   ros::ServiceServer save_server_;
 
   // transforms
   tf2_ros::Buffer tfBuffer;
   tf2_ros::TransformListener tfListener;
 
+  std::string mapFrameName;
+  std::string scanFrameName;
+  std::string scanTopicName;
+  std::string odomTopicName;
+  std::string pcTopicName;
+  std::string loadPcdPath;
+  std::string savePcdPath;
+
+  double maxDistance;
+  double maxLinearV;
+  double maxAngularV;
+  double voxelFilterSize;
+
   bool ready;
+  bool isMoving;
+
+  pcl::VoxelGrid<pcl::PointXYZ> voxel_grid_filter;
 
   void scanCB(const sensor_msgs::PointCloud2ConstPtr &inp);
 
+  void odomCB(const nav_msgs::OdometryConstPtr &inp);
+
  public:
-  PCMAP() : nh_("~"), probMap(0.1), ready(false), tfListener(tfBuffer) {
-    pc_pub_ = nh_.advertise<sensor_msgs::PointCloud2>("voxeled", 10, true);
-    pc_sub_ = nh_.subscribe("/rslidar_points", 1, &PCMAP::scanCB, this);
-    save_server_ = nh_.advertiseService("save_pc_map", &PCMAP::save_map, this);
-    loadPcd("/home/ro/Documents/test_save/test.pcd");
-    ready = true;
-    // loadPcd("/home/ro/Documents/pcd_files/decathlon.pcd");
-  }
+  PCMAP();
 
   bool save_map(pcmap_updater::Save::Request &request,
                 pcmap_updater::Save::Response &response);
