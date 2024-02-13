@@ -45,6 +45,7 @@ class PCMAP {
   double maxDistance;
   double maxLinearV;
   double maxAngularV;
+  double voxelFilterSize;
 
   bool ready;
   bool isMoving;

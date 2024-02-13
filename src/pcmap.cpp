@@ -16,6 +16,7 @@ PCMAP::PCMAP()
       maxDistance(100.0),
       maxLinearV(0.02),
       maxAngularV(0.02),
+      voxelFilterSize(0.2),
       loadPcdPath("/home/ro/Documents/pcd_files/decathlon.pcd"),
       savePcdPath("/home/ro/Documents/test_save/test.pcd")
 
@@ -30,6 +31,7 @@ PCMAP::PCMAP()
   nh_.param("max_linear_velocity", maxLinearV, maxLinearV);
   nh_.param("load_pcd_path", loadPcdPath, loadPcdPath);
   nh_.param("save_pcd_path", savePcdPath, savePcdPath);
+  nh_.param("voxel_filter_size", voxelFilterSize, voxelFilterSize);
 
   pc_pub_ = nh_.advertise<sensor_msgs::PointCloud2>(pcTopicName, 10, true);
   pc_sub_ = nh_.subscribe(scanTopicName, 1, &PCMAP::scanCB, this);
@@ -39,7 +41,8 @@ PCMAP::PCMAP()
   ready = true;
   isMoving = false;
 
-  voxel_grid_filter.setLeafSize(0.2, 0.2, 0.2);
+  voxel_grid_filter.setLeafSize(voxelFilterSize, voxelFilterSize,
+                                voxelFilterSize);
 }
 
 void PCMAP::scanCB(const sensor_msgs::PointCloud2ConstPtr& inp) {
